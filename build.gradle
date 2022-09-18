@@ -1,0 +1,74 @@
+buildscript {
+    ext { //빌드 그래들에서 사용하는 전역변수를 설정하겠다는 의미
+        springBootVersion = '2.1.7.RELEASE' //spring Boot Version 전역변수를 생성하고 스프링 부트 플러그인 2.1.7RELEASE를 의존성으로 받겠다
+    }
+    repositories {
+        mavenCentral()
+        jcenter() // 라이브러리 업로드 난이도 때문에 jcenter도 많이 사용  jcenter에 업로드시 mavenCentral에도 업로드 될 수 있도록 자동화
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'eclipse'
+    id 'org.springframework.boot' version '2.7.3'
+    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'org.beryx.jlink' version '2.25.0'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.8.2'
+}
+
+sourceCompatibility = '11' ////sourceCompatibility“Java 소스를 컴파일 할 때 사용할 Java 버전 호환성”
+targetCompatibility = '11' //생성 된 클래스 파일을 실행할 수있는 jre 버전을 의미하며 1.8로 설정하면
+// jdk 1.7에서 성공적으로 실행되지 않을 수 있지만 일반적으로 상위 버전의 jdk에서 실행될 수 있습니다.
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+application {
+    mainModule = 'com.example.intern'
+    mainClass = 'com.example.intern.HelloApplication'
+}
+
+javafx {
+    version = '17.0.2'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jlink {
+    imageZip = project.file("${buildDir}/distributions/app-${javafx.platform.classifier}.zip")
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'app'
+    }
+}
+
+jlinkZip {
+    group = 'distribution'
+}
